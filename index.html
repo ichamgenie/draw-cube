@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>svg</title>
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+	<div id="app">
+		<div id="svg-container">
+			<svg xmlns="http://www.w3.org/2000/svg" version="1.1" :height="svgHeight" :width="svgWidth+1" style="background: #eeeeee;">
+				<polygon v-for="(item, index) of polygonList" :points="item" style="fill:white;stroke:#777777;stroke-width:1"/>
+			</svg>
+		</div>
+		<!--
+		<button @click="downloadImage">download</button>
+		-->
+	</div>
+    <script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				svgHeight: 800,
+				svgWidth: 800,
+				fillColor: 'green',
+				strokeColor: "black",
+				polygonList: [],
+				polygonList1: [],
+				perspectiveRatio: 0.9,
+				ratio: 100,
+				shift: {},
+				
+				a: {},
+				b: {},
+				c: {},
+				
+				O: {x: 0, y: 0},
+				a1: {},
+				a2: {},
+				a3: {},
+				a4: {},
+				a5: {},
+				a6: {},
+				a7: {},
+				a8: {},
+				a9: {},
+				a10: {},
+				a11: {},
+				a12: {},
+				a13: {},
+				a14: {},
+				a15: {},
+				a16: {},
+				a17: {},
+				b1: {},
+				b2: {},
+				b3: {},
+				b4: {},
+				b5: {},
+				b6: {},
+				b7: {},
+				b8: {},
+				b9: {},
+				b10: {},
+				b11: {},
+				b12: {},
+				b13: {},
+				b14: {},
+				b15: {},
+				b16: {},
+				b17: {},
+				c1: {},
+				c2: {},
+				c3: {},
+				c4: {},
+				c5: {},
+				c6: {},
+				c7: {},
+				c8: {},
+				c9: {},
+				c10: {},
+				c11: {},
+				c12: {},
+				c13: {},
+				c14: {},
+				c15: {},
+				c16: {},
+				c17: {},
+			},
+			created() {
+				this.initPoints();
+				this.fillColor = "blue";
+				this.getDataList();
+				this.draw();
+			},
+			mounted() {
+				this.downloadImage();
+			},
+			methods: {
+				initPoints() {
+					let O = {x: 0, y: 0};
+					let maxlength = this.ratio/(1 - this.perspectiveRatio);
+					// this.shift = {
+						// x: Math.sqrt(3)*maxlength/2,
+						// y: maxlength/2
+					// }
+					this.shift = {
+						x: this.svgWidth/2,
+						y: this.svgHeight/2
+					}
+					
+					this.a10 = {x: 0.0, y: maxlength};
+					this.b10 = this.getRotate240Point(this.a10);
+					this.c10 = this.getRotate120Point(this.a10);
+					
+					this.a1 = {x: 0.0, y: 1.0*this.ratio};
+					this.b1 = this.getRotate240Point(this.a1);
+					this.c1 = this.getRotate120Point(this.a1);
+					
+					this.a2 = {x: 0.0, y: this.ratio*(1.0 + Math.pow(this.perspectiveRatio, 1))};
+					this.b2 = this.getRotate240Point(this.a2);
+					this.c2 = this.getRotate120Point(this.a2);
+					
+					this.a3 = {x: 0.0, y: this.ratio*(1.0 + Math.pow(this.perspectiveRatio, 1) + Math.pow(this.perspectiveRatio, 2))};
+					this.b3 = this.getRotate240Point(this.a3);
+					this.c3 = this.getRotate120Point(this.a3);
+					
+					this.a4 = this.getXPoint(this.a10, this.b1, this.a3, this.b10);
+					this.b4 = this.getRotate240Point(this.a4);
+					this.c4 = this.getRotate120Point(this.a4);
+					
+					this.a5 = this.getXPoint(this.a10, this.b1, this.a2, this.b10);
+					this.b5 = this.getRotate240Point(this.a5);
+					this.c5 = this.getRotate120Point(this.a5);
+					
+					this.a6 = this.getXPoint(this.a10, O, this.a5, this.c10);
+					this.b6 = this.getRotate240Point(this.a6);
+					this.c6 = this.getRotate120Point(this.a6);
+					
+					this.a16 = this.getMirrorPoint(this.a5);
+					this.b16 = this.getRotate240Point(this.a16);
+					this.c16 = this.getRotate120Point(this.a16);
+					
+					this.a17 = this.getMirrorPoint(this.a4);
+					this.b17 = this.getRotate240Point(this.a17);
+					this.c17 = this.getRotate120Point(this.a17);
+					
+					this.a9 = this.getXPoint(this.b1, this.c10, this.c1, this.b10);
+					this.b9 = this.getRotate240Point(this.a9);
+					this.c9 = this.getRotate120Point(this.a9);
+					
+					this.a7 = {x: 0, y: -1*this.ratio*(Math.pow(this.perspectiveRatio, -1))};
+					this.b7 = this.getRotate240Point(this.a7);
+					this.c7 = this.getRotate120Point(this.a7);
+					
+					this.a8 = {x: 0, y: -1*this.ratio*(Math.pow(this.perspectiveRatio, -1) + Math.pow(this.perspectiveRatio, -2))};
+					this.b8 = this.getRotate240Point(this.a8);
+					this.c8 = this.getRotate120Point(this.a8);
+					
+					this.a11 = this.getXPoint(this.a7, this.b10, this.b1, this.a10);
+					this.a12 = this.getXPoint(this.a8, this.b10, this.b1, this.a10);
+					this.a14 = this.getMirrorPoint(this.a12);
+					this.a15 = this.getMirrorPoint(this.a11);
+					this.a13 = this.getXPoint(this.c10, this.a12, this.b10, this.a14);
+					
+					for(let i=11; i<=15; i++) {
+						this.rotateA(i);
+					}
+				},
+				rotateA(index) {
+					aKeyName = "a" + index;
+					bKeyName = "b" + index;
+					cKeyName = "c" + index;
+					if(this[aKeyName]) {
+						this[bKeyName] = this.getRotate240Point(this[aKeyName]);
+						this[cKeyName] = this.getRotate120Point(this[aKeyName]);
+					}
+				},
+				draw() {
+					// this.polygonList.push(this.getPolygonString([this.a10, this.b10, this.c10]));
+					
+					this.polygonList.push(this.getPolygonString([this.a6, this.a5, this.a2, this.a16]));
+					this.polygonList.push(this.getPolygonString([this.a4, this.a5, this.a2, this.a3]));
+					this.polygonList.push(this.getPolygonString([this.a17, this.a3, this.a2, this.a16]));
+					
+					this.polygonList.push(this.getPolygonString([this.b6, this.b5, this.b2, this.b16]));
+					this.polygonList.push(this.getPolygonString([this.b4, this.b5, this.b2, this.b3]));
+					this.polygonList.push(this.getPolygonString([this.b17, this.b3, this.b2, this.b16]));
+					
+					this.polygonList.push(this.getPolygonString([this.c6, this.c5, this.c2, this.c16]));
+					this.polygonList.push(this.getPolygonString([this.c4, this.c5, this.c2, this.c3]));
+					this.polygonList.push(this.getPolygonString([this.c17, this.c3, this.c2, this.c16]));
+					
+					this.polygonList.push(this.getPolygonString([this.b1, this.a9, this.c1, this.O]));
+					this.polygonList.push(this.getPolygonString([this.a1, this.b9, this.c1, this.O]));
+					this.polygonList.push(this.getPolygonString([this.a1, this.c9, this.b1, this.O]));
+					
+					this.polygonList.push(this.getPolygonString([this.a13, this.a14, this.a8, this.a12]));
+					this.polygonList.push(this.getPolygonString([this.a14, this.a8, this.a7, this.a15]));
+					this.polygonList.push(this.getPolygonString([this.a8, this.a12, this.a11, this.a7]));
+					
+					this.polygonList.push(this.getPolygonString([this.b13, this.b14, this.b8, this.b12]));
+					this.polygonList.push(this.getPolygonString([this.b14, this.b8, this.b7, this.b15]));
+					this.polygonList.push(this.getPolygonString([this.b8, this.b12, this.b11, this.b7]));
+					
+					this.polygonList.push(this.getPolygonString([this.c13, this.c14, this.c8, this.c12]));
+					this.polygonList.push(this.getPolygonString([this.c14, this.c8, this.c7, this.c15]));
+					this.polygonList.push(this.getPolygonString([this.c8, this.c12, this.c11, this.c7]));
+					console.log("this.polygonList", this.polygonList);
+				},
+				getDataList() {
+					this.strokeColor = "red";
+				},
+				getPolygonString(pointList) {
+					let rtn = "";
+					for(let point of pointList) {
+						let x = point.x + this.shift.x;
+						let y = point.y + this.shift.y;
+						rtn = rtn + x + "," + y + " ";
+					}
+					return rtn;
+				},
+				getXPoint(point1, point2, point3, point4) {
+					let x1 = point1.x;
+					let y1 = point1.y;
+					let x2 = point2.x;
+					let y2 = point2.y;
+					let x3 = point3.x;
+					let y3 = point3.y;
+					let x4 = point4.x;
+					let y4 = point4.y;
+					let t1 = (y2-y1)/(x2-x1);
+					let t2 = (y4-y3)/(x4-x3);
+					let t3 = (x2-x1)/(y2-y1);
+					let t4 = (x4-x3)/(y4-y3);
+					if(x2==x1 || x4==x3) {
+						return {
+							x: 0,
+							y: (t3*y1 - x1 - t4*y3 + x3)/(t3 - t4)
+						}
+					}
+					if(y2==y1 || y4==y3) {
+						return {
+							x: (t1*x1 - y1 - t2*x3 + y3)/(t1 - t2),
+							y: 0
+						}
+					}
+					let point = {
+						x: (t1*x1 - y1 - t2*x3 + y3)/(t1 - t2),
+						y: (t3*y1 - x1 - t4*y3 + x3)/(t3 - t4)
+					};
+					return point;
+				},
+				// 顺时针旋转
+				getRotatePoint(pointIn, rotateAngle) {
+					let lineLength = Math.sqrt(pointIn.x*pointIn.x + pointIn.y*pointIn.y);
+					// console.log("lineLength", lineLength);
+					let oAng = Math.acos(pointIn.x/lineLength);
+					// console.log("oAng", oAng);
+					let ang = oAng + rotateAngle;
+					if(pointIn.y<0) {
+						ang = Math.PI*2 - oAng + rotateAngle;
+					}
+					// console.log("ang", ang);
+					// console.log("x", Math.cos(ang) * lineLength);
+					// console.log("y", Math.sin(ang) * lineLength);
+					return {
+						x: Math.cos(ang) * lineLength,
+						y: Math.sin(ang) * lineLength
+					}
+				},
+				getRotate120Point(pointIn) {
+					return this.getRotatePoint(pointIn, Math.PI*2/3);
+				},
+				getRotate240Point(pointIn) {
+					let point = this.getRotatePoint(pointIn, Math.PI*4/3);
+					return {
+						x: point.x,
+						y: point.y
+					}
+				},
+				getMirrorPoint(pointIn) {
+					return {
+						x: -1*pointIn.x,
+						y: pointIn.y
+					}
+				},
+				//下载当前图片
+				downloadImage() {
+					console.log("download");
+					var svgXml = document.getElementById("svg-container").innerHTML;
+					var image = new Image();
+					image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgXml))); //给图片对象写入base64编码的svg流
+					let that = this;
+					image.onload=function(){
+						var canvas = document.createElement('canvas');  //准备空画布
+						canvas.width = that.svgWidth;
+						canvas.height = that.svgHeight;
+						var context = canvas.getContext('2d');  //取得画布的2d绘图上下文
+						context.drawImage(image, 0, 0);
+						var a = document.createElement('a');
+						a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
+						a.download = "cube_" + new Date().getTime();  //设定下载名称
+						a.click(); //点击触发下载
+					};
+				}
+			}
+		})
+	</script>
+</body>
+</html>
