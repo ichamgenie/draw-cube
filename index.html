@@ -4,17 +4,35 @@
 <meta charset="utf-8">
 <title>svg</title>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.5/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui@2.15.5/lib/index.js"></script>
 </head>
 <body>
-    <div id="app">
-        <div style="margin-bottom: 15px">
-            <span style="padding:0px 10px;border:solid 1px #777777;border-radius:3px;cursor:pointer" @click="downloadImage">download</span>
-            <span style="padding:0px 10px;border:solid 1px #777777;border-radius:3px;cursor:pointer" @click="switchImage">switch</span>
-        </div>
-        <div id="svg-container">
-            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" :height="svgHeight" :width="svgWidth+1" style="background: #eeeeee;">
-                <polygon v-for="(item, index) of polygonList" :points="item" style="fill:white;stroke:#777777;stroke-width:1"/>
+    <div id="app" style="position:relative">
+        <div id="svg-container" style="display:inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" :height="svgHeight" :width="svgWidth+1" :style="'background:' + backgroundColor">
+                <polygon v-for="(item, index) of polygonList" :points="item.points" :style="item.style"/>
             </svg>
+        </div>
+        <div style="display:inline-block; position:absolute; margin-left: 8px">
+            <div>
+                <el-button type="primary" @click="downloadImage">download</el-button>
+            </div>
+            <div style="margin-top: 8px">
+                <el-button @click="switchImage">switch</el-button>
+            </div>
+            <div style="margin-top: 8px">
+                <div>Background</div>
+                <el-color-picker v-model="backgroundColor" @active-change="handleBackgroundChange"></el-color-picker>
+                <div>Light</div>
+                <el-color-picker v-model="colorLight" @active-change="handleColorLightChange"></el-color-picker>
+                <div>Middle</div>
+                <el-color-picker v-model="colorMiddle" @active-change="handleColorMiddleChange"></el-color-picker>
+                <div>Dark</div>
+                <el-color-picker v-model="colorDark" @active-change="handleColorDarkhange"></el-color-picker>
+            </div>
         </div>
         <!--
         <button @click="downloadImage">download</button>
@@ -26,7 +44,10 @@
             data: {
                 svgHeight: 1200,
                 svgWidth: 800,
-                fillColor: 'green',
+                backgroundColor: '#888888',
+                colorLight: '#ffffff',
+                colorMiddle: '#dddddd',
+                colorDark: '#aaaaaa',
                 strokeColor: "black",
                 polygonList: [],
                 polygonList1: [],
@@ -115,7 +136,6 @@
             },
             created() {
                 this.initPoints();
-                this.fillColor = "blue";
                 this.getDataList();
                 this.draw();
             },
@@ -123,6 +143,22 @@
                 // this.downloadImage();
             },
             methods: {
+                handleBackgroundChange(color) {
+                    this.backgroundColor = color;
+                    this.draw();
+                },
+                handleColorLightChange(color) {
+                    this.colorLight = color;
+                    this.draw();
+                },
+                handleColorMiddleChange(color) {
+                    this.colorMiddle= color;
+                    this.draw();
+                },
+                handleColorDarkhange(color) {
+                    this.colorDark = color;
+                    this.draw();
+                },
                 initPoints() {
                     let O = {x: 0, y: 0};
                     let maxlength = this.ratio/(1 - this.perspectiveRatio);
@@ -211,71 +247,88 @@
                     }
                 },
                 draw() {
-                    this.imageIndex = 0;
+                    switch(this.imageIndex) {
+                        case 0: 
+                            this.drawCube1();
+                            break;
+                        case 1: 
+                            this.drawCube2();
+                            break;
+                        default:
+                            this.drawCube2();
+                            break;
+                    }
+                },
+                drawCube1() {
                     this.polygonList = [];
                     // this.polygonList.push(this.getPolygonString([this.a10, this.b10, this.c10]));
+                    let style1 = "fill:" + this.colorDark;
+                    let style2 = "fill:" + this.colorMiddle;
+                    let style3 = "fill:" + this.colorLight;
                     
-                    this.polygonList.push(this.getPolygonString([this.a6, this.a5, this.a2, this.a16]));
-                    this.polygonList.push(this.getPolygonString([this.a4, this.a5, this.a2, this.a3]));
-                    this.polygonList.push(this.getPolygonString([this.a17, this.a3, this.a2, this.a16]));
+                    this.polygonList.push({points:this.getPolygonString([this.a6, this.a5, this.a2, this.a16]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.a4, this.a5, this.a2, this.a3]), style:style2});
+                    this.polygonList.push({points:this.getPolygonString([this.a17, this.a3, this.a2, this.a16]), style:style1});
                     
-                    this.polygonList.push(this.getPolygonString([this.b6, this.b5, this.b2, this.b16]));
-                    this.polygonList.push(this.getPolygonString([this.b4, this.b5, this.b2, this.b3]));
-                    this.polygonList.push(this.getPolygonString([this.b17, this.b3, this.b2, this.b16]));
+                    this.polygonList.push({points:this.getPolygonString([this.b6, this.b5, this.b2, this.b16]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.b4, this.b5, this.b2, this.b3]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.b17, this.b3, this.b2, this.b16]), style:style2});
                     
-                    this.polygonList.push(this.getPolygonString([this.c6, this.c5, this.c2, this.c16]));
-                    this.polygonList.push(this.getPolygonString([this.c4, this.c5, this.c2, this.c3]));
-                    this.polygonList.push(this.getPolygonString([this.c17, this.c3, this.c2, this.c16]));
+                    this.polygonList.push({points:this.getPolygonString([this.c6, this.c5, this.c2, this.c16]), style:style2});
+                    this.polygonList.push({points:this.getPolygonString([this.c4, this.c5, this.c2, this.c3]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.c17, this.c3, this.c2, this.c16]), style:style3});
                     
-                    this.polygonList.push(this.getPolygonString([this.b1, this.a9, this.c1, this.O]));
-                    this.polygonList.push(this.getPolygonString([this.a1, this.b9, this.c1, this.O]));
-                    this.polygonList.push(this.getPolygonString([this.a1, this.c9, this.b1, this.O]));
+                    this.polygonList.push({points:this.getPolygonString([this.b1, this.a9, this.c1, this.O]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.a1, this.b9, this.c1, this.O]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.a1, this.c9, this.b1, this.O]), style:style2});
                     
-                    this.polygonList.push(this.getPolygonString([this.a13, this.a14, this.a8, this.a12]));
-                    this.polygonList.push(this.getPolygonString([this.a14, this.a8, this.a7, this.a15]));
-                    this.polygonList.push(this.getPolygonString([this.a8, this.a12, this.a11, this.a7]));
+                    this.polygonList.push({points:this.getPolygonString([this.a13, this.a14, this.a8, this.a12]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.a14, this.a8, this.a7, this.a15]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.a8, this.a12, this.a11, this.a7]), style:style2});
                     
-                    this.polygonList.push(this.getPolygonString([this.b13, this.b14, this.b8, this.b12]));
-                    this.polygonList.push(this.getPolygonString([this.b14, this.b8, this.b7, this.b15]));
-                    this.polygonList.push(this.getPolygonString([this.b8, this.b12, this.b11, this.b7]));
+                    this.polygonList.push({points:this.getPolygonString([this.b13, this.b14, this.b8, this.b12]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.b14, this.b8, this.b7, this.b15]), style:style2});
+                    this.polygonList.push({points:this.getPolygonString([this.b8, this.b12, this.b11, this.b7]), style:style3});
                     
-                    this.polygonList.push(this.getPolygonString([this.c13, this.c14, this.c8, this.c12]));
-                    this.polygonList.push(this.getPolygonString([this.c14, this.c8, this.c7, this.c15]));
-                    this.polygonList.push(this.getPolygonString([this.c8, this.c12, this.c11, this.c7]));
+                    this.polygonList.push({points:this.getPolygonString([this.c13, this.c14, this.c8, this.c12]), style:style2});
+                    this.polygonList.push({points:this.getPolygonString([this.c14, this.c8, this.c7, this.c15]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.c8, this.c12, this.c11, this.c7]), style:style1});
                     console.log("this.polygonList", this.polygonList);
                 },
-                draw1() {
-                    this.imageIndex = 1;
+                drawCube2() {
                     this.polygonList = [];
                     // this.polygonList.push(this.getPolygonString([this.a10, this.b10, this.c10]));
+                    let style1 = "fill:" + this.colorDark;
+                    let style2 = "fill:" + this.colorMiddle;
+                    let style3 = "fill:" + this.colorLight;
                     
-                    this.polygonList.push(this.getPolygonString([this.a6, this.a5, this.a2, this.a16]));
-                    this.polygonList.push(this.getPolygonString([this.a4, this.a5, this.a2, this.a3]));
-                    this.polygonList.push(this.getPolygonString([this.a17, this.a3, this.a2, this.a16]));
+                    this.polygonList.push({points:this.getPolygonString([this.a6, this.a5, this.a2, this.a16]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.a4, this.a5, this.a2, this.a3]), style:style2});
+                    this.polygonList.push({points:this.getPolygonString([this.a17, this.a3, this.a2, this.a16]), style:style1});
                     
-                    this.polygonList.push(this.getPolygonString([this.b6, this.b5, this.b2, this.b16]));
-                    this.polygonList.push(this.getPolygonString([this.b4, this.b5, this.b2, this.b3]));
-                    this.polygonList.push(this.getPolygonString([this.b17, this.b3, this.b2, this.b16]));
+                    this.polygonList.push({points:this.getPolygonString([this.b6, this.b5, this.b2, this.b16]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.b4, this.b5, this.b2, this.b3]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.b17, this.b3, this.b2, this.b16]), style:style2});
                     
-                    this.polygonList.push(this.getPolygonString([this.c6, this.c5, this.c2, this.c16]));
-                    this.polygonList.push(this.getPolygonString([this.c4, this.c5, this.c2, this.c3]));
-                    this.polygonList.push(this.getPolygonString([this.c17, this.c3, this.c2, this.c16]));
+                    this.polygonList.push({points:this.getPolygonString([this.c6, this.c5, this.c2, this.c16]), style:style2});
+                    this.polygonList.push({points:this.getPolygonString([this.c4, this.c5, this.c2, this.c3]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.c17, this.c3, this.c2, this.c16]), style:style3});
                     
-                    this.polygonList.push(this.getPolygonString([this.a18, this.a19, this.a21, this.a22]));
-                    this.polygonList.push(this.getPolygonString([this.a19, this.a21, this.a20, this.a23]));
-                    this.polygonList.push(this.getPolygonString([this.a18, this.a19, this.a23, this.a24]));
+                    this.polygonList.push({points:this.getPolygonString([this.a18, this.a19, this.a21, this.a22]), style: style2});
+                    this.polygonList.push({points:this.getPolygonString([this.a19, this.a21, this.a20, this.a23]), style: style3});
+                    this.polygonList.push({points:this.getPolygonString([this.a18, this.a19, this.a23, this.a24]), style: style1});
                     
-                    this.polygonList.push(this.getPolygonString([this.b18, this.b19, this.b21, this.b22]));
-                    this.polygonList.push(this.getPolygonString([this.b19, this.b21, this.b20, this.b23]));
-                    this.polygonList.push(this.getPolygonString([this.b18, this.b19, this.b23, this.b24]));
+                    this.polygonList.push({points:this.getPolygonString([this.b18, this.b19, this.b21, this.b22]), style: style3});
+                    this.polygonList.push({points:this.getPolygonString([this.b19, this.b21, this.b20, this.b23]), style: style1});
+                    this.polygonList.push({points:this.getPolygonString([this.b18, this.b19, this.b23, this.b24]), style: style2});
                     
-                    this.polygonList.push(this.getPolygonString([this.c18, this.c19, this.c21, this.c22]));
-                    this.polygonList.push(this.getPolygonString([this.c19, this.c21, this.c20, this.c23]));
-                    this.polygonList.push(this.getPolygonString([this.c18, this.c19, this.c23, this.c24]));
+                    this.polygonList.push({points:this.getPolygonString([this.c18, this.c19, this.c21, this.c22]), style: style1});
+                    this.polygonList.push({points:this.getPolygonString([this.c19, this.c21, this.c20, this.c23]), style: style2});
+                    this.polygonList.push({points:this.getPolygonString([this.c18, this.c19, this.c23, this.c24]), style: style3});
                     
-                    this.polygonList.push(this.getPolygonString([this.b1, this.a9, this.c1, this.O]));
-                    this.polygonList.push(this.getPolygonString([this.a1, this.b9, this.c1, this.O]));
-                    this.polygonList.push(this.getPolygonString([this.a1, this.c9, this.b1, this.O]));
+                    this.polygonList.push({points:this.getPolygonString([this.b1, this.a9, this.c1, this.O]), style:style3});
+                    this.polygonList.push({points:this.getPolygonString([this.a1, this.b9, this.c1, this.O]), style:style1});
+                    this.polygonList.push({points:this.getPolygonString([this.a1, this.c9, this.b1, this.O]), style:style2});
 
                     console.log("this.polygonList", this.polygonList);
                 },
@@ -378,15 +431,16 @@
                 switchImage() {
                     switch(this.imageIndex) {
                         case 0: 
-                            this.draw1();
+                            this.imageIndex = 1;
                             break;
                         case 1: 
-                            this.draw();
+                            this.imageIndex = 0;
                             break;
                         default:
-                            this.draw();
+                            this.imageIndex = 0;
                             break;
                     }
+                    this.draw();
                 }
             }
         })
